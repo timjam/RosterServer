@@ -7,13 +7,14 @@
 import app from '../app';
 import debugLib from 'debug';
 import http from 'http';
+import { serverPort } from '../config.json';
 const debug = debugLib('rosterserver:server');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || serverPort);
 app.set('port', port);
 
 /**
