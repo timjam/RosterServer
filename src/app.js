@@ -1,20 +1,18 @@
 import express from 'express';
-import path from 'path';
-import cookieParser from 'cookie-parser';
-import logger from 'morgan';
-
-import indexRouter from './routes/index';
+import morgan from 'morgan';
 import usersRouter from './routes/users';
+import config from './configs/config';
+import { initDB } from './configs/connectionManager';
 
 const app = express();
 
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, '../public')));
 
-// app.use('/', indexRouter);
-app.use('/user/', usersRouter);
+app.use('/user', usersRouter);
+initDB();
 
-export default app;
+app.listen(config.SERVER_PORT, () => {
+  console.log(`Server now listening on port ${config.SERVER_PORT}`);
+});
