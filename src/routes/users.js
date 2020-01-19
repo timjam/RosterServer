@@ -1,13 +1,39 @@
 import express from 'express';
-const router = express.Router();
+import { registerUser, findByUsername } from './usersMethods';
 
-router.get('/profile', (req, res, next) => {
-    res.send('Bullshit for now');
-})
+const userRouter = express.Router();
 
-router.post('/signup', (req, res, next) => {
-    console.log(req);
-    res.send('jwttoken123');
+userRouter.get('/test', (req, res) => {
+  res.status(200).end('Working as intended');
+});
+userRouter.post('/signup', (req, res) => {
+  const { username, password } = req.body;
+
+  console.log({ username, password });
+  if (!username || !password) {
+    res.status(400).end('Bad request. Username and password are required');
+  }
+
+  // TODO: Don't pass res object to registerUser
+  registerUser(username, password, res);
 });
 
-export default router;
+userRouter.get('/signin', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    res.status(400).end('Bad request. Username and password are required');
+  }
+});
+
+// TODO: Change this to find by jwt token
+userRouter.get('/', (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    res.status(400).end('Bad request. Username is required');
+  }
+  findByUsername(username, res);
+});
+
+export default userRouter;
