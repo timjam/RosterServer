@@ -14,11 +14,12 @@ userRouter.post('/signup', (req, res) => {
     res.status(400).end('Bad request. Username and password are required');
   }
 
-  // TODO: Don't pass res object to registerUser
-  registerUser(username, password, res);
+  registerUser(username, password)
+    .then((lastID) => res.status(200).end(JSON.stringify(lastID)))
+    .catch((error) => res.status(400).end(JSON.stringify(error)));
 });
 
-userRouter.get('/signin', (req, res) => {
+userRouter.post('/signin', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
