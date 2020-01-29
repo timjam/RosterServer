@@ -1,5 +1,9 @@
 import express from 'express';
-import { registerUser, findByUsername } from './usersMethods';
+import {
+  registerUser,
+  findByUsername,
+  signInUser,
+} from './usersMethods';
 
 const userRouter = express.Router();
 
@@ -20,7 +24,6 @@ userRouter.post('/signup', async (req, res) => {
   } catch (error) {
     res.status(400).end(JSON.stringify(error));
   }
-
 });
 
 userRouter.post('/signin', async (req, res) => {
@@ -32,11 +35,10 @@ userRouter.post('/signin', async (req, res) => {
 
   try {
     const someToken = await signInUser(username, password);
-    res.status(200).end(JSON.stringify('Succesfully signed in'));
+    res.status(200).end(JSON.stringify(`Success ${someToken}`));
   } catch (error) {
     res.status(400).end(JSON.stringify(error));
   }
-
 });
 
 // TODO: Change this to find by jwt token

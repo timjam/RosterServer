@@ -19,7 +19,17 @@ const registerUser = (username, password) => new Promise((resolve, reject) => {
   });
 });
 
+const signInUser = (username, password) => new Promise((resolve, reject) => {
+  openDB().get('INSERT COMMAND HERE', [username, password], function (error, row) {
+    if (error) {
+      return reject(error);
+    }
+    return resolve(row);
+  });
+});
+
 export {
   registerUser,
   findByUsername,
+  signInUser,
 };
