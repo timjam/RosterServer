@@ -9,7 +9,7 @@ const errorCallback = (error) => {
   }
 };
 
-const openDB = () => new sqlite3.Database(config.DB_PATH, errorCallback);
+const openDB = () => new sqlite3.Database(process.env.DB_PATH, errorCallback);
 
 const initDB = () => openDB().exec(usersSchema, errorCallback).close();
 
