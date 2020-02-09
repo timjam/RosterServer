@@ -37,15 +37,16 @@ const User = {
     const querytext = 'SELECT * FROM users WHERE id = $1';
     const values = [id];
 
-    try {
-      const { rows } = await db.query(querytext, values);
-      if (!rows[0]) {
-        return new Error('User not found');
-      }
-      return rows;
-    } catch (error) {
-      return error;
-    }
+    return db.query(querytext, values);
+    // try {
+    //   const { rows } = await db.query(querytext, values);
+    //   if (!rows[0]) {
+    //     return new Error('User not found');
+    //   }
+    //   return rows;
+    // } catch (error) {
+    //   return error;
+    // }
   },
 
   getOneByName: (username) => {
