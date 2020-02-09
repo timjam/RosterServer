@@ -38,15 +38,6 @@ const User = {
     const values = [id];
 
     return db.query(querytext, values);
-    // try {
-    //   const { rows } = await db.query(querytext, values);
-    //   if (!rows[0]) {
-    //     return new Error('User not found');
-    //   }
-    //   return rows;
-    // } catch (error) {
-    //   return error;
-    // }
   },
 
   getOneByName: (username) => {
