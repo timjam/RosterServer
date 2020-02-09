@@ -7,7 +7,7 @@ const nonAuthPaths = [
   '/user/signin',
 ];
 
-const Auth = {
+const authmw = {
   verifyToken: async (req, res, next) => {
     const { pathname } = req._parsedUrl;
     if (nonAuthPaths.includes(pathname)) {
@@ -35,4 +35,4 @@ const Auth = {
   },
 };
 
-export default Auth;
+export default authmw;
