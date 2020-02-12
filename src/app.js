@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import usersRouter from './routes/users';
-import authmw from './middlewares/auth';
+import authmw from './middlewares/authmw';
 
 const app = express();
 const { SERVER_PORT } = process.env;
