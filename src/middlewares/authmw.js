@@ -14,11 +14,10 @@ const authmw = {
       next();
     } else {
       const header = req.headers.authorization;
+      const bearer = header.split(' ');
+      const token = bearer[1];
 
-      if (header) {
-        const bearer = header.split(' ');
-        const token = bearer[1];
-
+      if (token) {
         try {
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
           const { rows } = await User.getOne(decoded.userId);

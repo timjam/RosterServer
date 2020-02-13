@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const Auth = {
+const Crypto = {
   hashPassword: (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(8)),
   comparePassword: (password, hashedPassword) => bcrypt.compareSync(password, hashedPassword),
   generateToken: (id) => {
@@ -10,4 +10,4 @@ const Auth = {
   },
 };
 
-export default Auth;
+export default Crypto;
