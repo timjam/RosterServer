@@ -48,10 +48,13 @@ userRouter.post('/signin', async (req, res) => {
 userRouter.post('/signout', async (req, res) => {
   // const { username, password } = req.body;
   const { username } = req.body;
+  const { user } = req;
 
   if (!username) {
     res.status(400).end('Bad request. Username is required');
   }
+
+  console.log(user);
 
   try {
     // const response = await signOutUser(username, password);
