@@ -1,11 +1,12 @@
 import moment from 'moment';
 import uuidv4 from 'uuid/v4';
 import db from '../index';
+import { QueryResult } from 'pg';
 
 const User = {
-  create: (username, password) => {
+  create: async (username: string, password: string) => {
     const querytext = `INSERT INTO
-      users(id, username, password, created_date, modified_date) 
+      users(id, username, password, created_date, modified_date)
       VALUES($1, $2, $3, $4, $5)
       returning *`;
 
@@ -17,7 +18,7 @@ const User = {
       moment(new Date()),
     ];
 
-    return db.query(querytext, values);
+    return await db.query(querytext, values) as QueryResult;
   },
 
   // TODO: Maybe both should return object?
@@ -26,54 +27,61 @@ const User = {
     const querytext = 'SELECT * FROM users';
 
     try {
-      const { rows, rowCount } = await db.query(querytext);
+      const { rows, rowCount } = await db.query(querytext, []) as QueryResult;
       return { rows, rowCount };
     } catch (error) {
       return error;
     }
   },
 
-  getOne: async (id) => {
+  // TODO: Check if uuids can be typechecked and use as types instead of plain string
+  getOne: async (id: string) => {
     const querytext = 'SELECT * FROM users WHERE id = $1';
     const values = [id];
 
-    return db.query(querytext, values);
+    return await db.query(querytext, values) as QueryResult;
   },
 
-  getOneByName: (username) => {
+  getOneByName: (username: string) => {
     const querytext = 'SELECT password FROM users WHERE username=$1';
     const values = [username];
 
     return db.query(querytext, values);
   },
 
-  updatePassword: async (id, oldpassword, newpassword) => {
-    const querytext = `UPDATE users 
-      SET password=$1, modified_date=$2 
+  updatePassword: async (id: string, oldpassword: string, newpassword: string) => {
+    const querytext = `UPDATE users
+      SET password=$1, modified_date=$2
       WHERE id=$3 returning *`;
 
     try {
       //  Change these to use something other than just id
-      const user = this.getOne(id);
+      const { rows } = await User.getOne(id);
 
-      const values = [
-        newpassword,
-        moment(new Date()),
-        user.id,
-      ];
+      if (rows[0]) {
+        const user = rows[0];
 
-      const response = await db.query(querytext, values);
-      return response;
+        const values = [
+          newpassword,
+          moment(new Date()),
+          user.id,
+        ];
+        const response = await db.query(querytext, values);
+        return response;
+      } else {
+        return new Error('User not found');
+      }
+
     } catch (error) {
       return error;
     }
   },
 
-  delete: async (id) => {
+  delete: async (id: string) => {
     const queryText = 'DELETE FROM users WHERE id=$1 returning *';
 
     try {
-      const { rows } = await db.query(queryText, [id]);
+      const { rows } = await db.query(queryText, [id]) as QueryResult;
       if (!rows[0]) {
         return new Error('USer not found');
       }

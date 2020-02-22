@@ -5,14 +5,8 @@ const pool = new Pool({
 });
 
 export default {
-  /**
-   * DB Query
-   * @param {object} req
-   * @param {object} res
-   * @returns {object} object
-   */
 
-  query(text, params) {
+  query(text: string, params: any[]) {
     return new Promise((resolve, reject) => {
       try {
         const result = pool.query(text, params);
