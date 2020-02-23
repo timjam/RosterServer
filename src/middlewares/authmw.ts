@@ -36,9 +36,10 @@ const authmw = {
 
             if (!rows[0]) {
               res.status(403).end({ message: 'Access denied' });
+            } else {
+              req.user = { id: decoded.userId };
+              next();
             }
-            req.user = { id: decoded.userId };
-            next();
           } catch (error) {
             res.status(403).end({ message: 'Access denied' });
           }
