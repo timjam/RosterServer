@@ -1,0 +1,26 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {
+        "no-console": {
+            "severity": "warning"
+        }
+    },
+    "rules": {
+        "max-line-length": {
+            "options": [100]
+        },
+        "member-ordering": false,
+        "no-consecutive-blank-lines": false,
+        "object-literal-sort-keys": false,
+        "ordered-imports": false,
+        "quotemark": [true, "single"],
+        "variable-name": [true, "allow-leading-underscore", "allow-pascal-case"],
+        "no-console": {
+            "severity": "warning"
+        }
+    },
+    "rulesDirectory": []
+}

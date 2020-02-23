@@ -1,20 +1,23 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import User from '../db/controllers/users';
 import Crypto from '../services/cryptoService';
+import { QueryResult } from 'pg';
+import { RequestWithUser } from '../types/request';
 
 const userRouter = express.Router();
 
-userRouter.post('/signup', async (req, res) => {
+userRouter.post('/signup', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400).end(JSON.stringify({ message: 'Bad request. Username and password are required' }));
+    res.status(400).end(JSON.stringify(
+      { message: 'Bad request. Username and password are required' }));
   }
 
   const hashedPassword = Crypto.hashPassword(password);
 
   try {
-    const { rows } = await User.create(username, hashedPassword);
+    const { rows } = await User.create(username, hashedPassword) as QueryResult;
     res.status(200).end(JSON.stringify({ rows }));
   } catch (error) {
     const { name, code, detail } = error;
@@ -22,7 +25,7 @@ userRouter.post('/signup', async (req, res) => {
   }
 });
 
-userRouter.post('/signin', async (req, res) => {
+userRouter.post('/signin', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -30,10 +33,11 @@ userRouter.post('/signin', async (req, res) => {
   }
 
   try {
-    const { rows } = await User.getOneByName(username);
+    const { rows } = await User.getOneByName(username) as QueryResult;
     if (!rows[0]) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
     }
+    // For some reason Morgan logs this as 200 even though Postman shows correct 401 status?!?
     if (!Crypto.comparePassword(password, rows[0].password)) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
     }
@@ -45,7 +49,7 @@ userRouter.post('/signin', async (req, res) => {
 });
 
 // TODO: Change this to find by jwt token
-userRouter.post('/signout', async (req, res) => {
+userRouter.post('/signout', async (req: RequestWithUser, res: Response) => {
   // const { username, password } = req.body;
   const { username } = req.body;
   const { user } = req;
@@ -53,8 +57,6 @@ userRouter.post('/signout', async (req, res) => {
   if (!username) {
     res.status(400).end('Bad request. Username is required');
   }
-
-  console.log(user);
 
   try {
     // const response = await signOutUser(username, password);

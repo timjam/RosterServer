@@ -1,18 +1,12 @@
-import { Pool } from 'pg';
+import { Pool, QueryResult } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
 export default {
-  /**
-   * DB Query
-   * @param {object} req
-   * @param {object} res
-   * @returns {object} object
-   */
 
-  query(text, params) {
+  query(text: string, params?: any[]): Promise<QueryResult | Error> {
     return new Promise((resolve, reject) => {
       try {
         const result = pool.query(text, params);
