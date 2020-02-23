@@ -37,12 +37,13 @@ userRouter.post('/signin', async (req: Request, res: Response) => {
     if (!rows[0]) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
     }
-    // For some reason Morgan logs this as 200 even though Postman shows correct 401 status?!?
+
     if (!Crypto.comparePassword(password, rows[0].password)) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
+    } else {
+      const token = Crypto.generateToken(rows[0].id);
+      res.status(200).end(JSON.stringify({ jwt: token }));
     }
-    const token = Crypto.generateToken(rows[0].id);
-    res.status(200).end(JSON.stringify({ jwt: token }));
   } catch (error) {
     res.status(400).end(JSON.stringify({ error }));
   }
