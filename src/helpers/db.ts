@@ -5,7 +5,7 @@ const pool = new Pool({
 });
 
 pool.on('connect', () => {
-  console.log('connected to db');
+  // console.log('connected to db');
 });
 
 /** This file is only needed to create table to DB
@@ -30,10 +30,10 @@ const createTables = async () => {
   try {
     const result = await pool.query(query);
     pool.end();
-    console.log(result);
+    // console.log(result);
   } catch (error) {
     pool.end();
-    console.log(error);
+    // console.log(error);
   }
 };
 
@@ -44,10 +44,10 @@ const dropTables = async () => {
   try {
     const result = await pool.query(query);
     pool.end();
-    console.log(result);
+    // console.log(result);
   } catch (error) {
     pool.end();
-    console.log(error);
+    // console.log(error);
   }
 };
 

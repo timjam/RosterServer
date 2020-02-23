@@ -1,11 +1,9 @@
 /* eslint-disable no-underscore-dangle */
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../db/controllers/users';
-
-interface RequestWithUser extends Request {
-  user?: object,
-}
+import { QueryResult } from 'pg';
+import { RequestWithUser } from '../types/request';
 
 interface Token {
   name?: string,
@@ -19,7 +17,7 @@ const nonAuthPaths = [
 ];
 
 const authmw = {
-  verifyToken: async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  verifyToken: async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     const { originalUrl } = req;
     if (nonAuthPaths.includes(originalUrl)) {
       next();
@@ -34,7 +32,7 @@ const authmw = {
           try {
             const secret = process.env.JWT_TOKEN as string;
             const decoded = jwt.verify(token, secret) as Token;
-            const { rows } = await User.getOne(decoded.userId);
+            const { rows } = await User.getOne(decoded.userId) as QueryResult;
 
             if (!rows[0]) {
               res.status(403).end({ message: 'Access denied' });

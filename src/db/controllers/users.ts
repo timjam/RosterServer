@@ -4,7 +4,7 @@ import db from '../index';
 import { QueryResult } from 'pg';
 
 const User = {
-  create: async (username: string, password: string) => {
+  create: async (username: string, password: string): Promise<QueryResult | Error> => {
     const querytext = `INSERT INTO
       users(id, username, password, created_date, modified_date)
       VALUES($1, $2, $3, $4, $5)
@@ -18,45 +18,44 @@ const User = {
       moment(new Date()),
     ];
 
-    return await db.query(querytext, values) as QueryResult;
+    const result = db.query(querytext, values);
+    return result;
   },
 
-  // TODO: Maybe both should return object?
-  // { rows, rowCount } || { error }
-  getAll: async () => {
+  getAll: async (): Promise<QueryResult | Error> => {
     const querytext = 'SELECT * FROM users';
 
-    try {
-      const { rows, rowCount } = await db.query(querytext, []) as QueryResult;
-      return { rows, rowCount };
-    } catch (error) {
-      return error;
-    }
+    return db.query(querytext);
   },
 
   // TODO: Check if uuids can be typechecked and use as types instead of plain string
-  getOne: async (id: string) => {
+  getOne: async (id: string): Promise<QueryResult | Error> => {
     const querytext = 'SELECT * FROM users WHERE id = $1';
     const values = [id];
 
-    return await db.query(querytext, values) as QueryResult;
+    return db.query(querytext, values);
   },
 
-  getOneByName: (username: string) => {
+  getOneByName: async (username: string): Promise<QueryResult | Error> => {
     const querytext = 'SELECT password FROM users WHERE username=$1';
     const values = [username];
 
     return db.query(querytext, values);
   },
 
-  updatePassword: async (id: string, oldpassword: string, newpassword: string) => {
+  updatePassword: async (
+      id: string,
+      oldpassword: string,
+      newpassword: string
+    ): Promise<QueryResult | Error> => {
+
     const querytext = `UPDATE users
       SET password=$1, modified_date=$2
       WHERE id=$3 returning *`;
 
     try {
       //  Change these to use something other than just id
-      const { rows } = await User.getOne(id);
+      const { rows } = await User.getOne(id) as QueryResult;
 
       if (rows[0]) {
         const user = rows[0];
@@ -66,8 +65,7 @@ const User = {
           moment(new Date()),
           user.id,
         ];
-        const response = await db.query(querytext, values);
-        return response;
+        return db.query(querytext, values);
       } else {
         return new Error('User not found');
       }
@@ -77,7 +75,7 @@ const User = {
     }
   },
 
-  delete: async (id: string) => {
+  delete: async (id: string): Promise<number | Error> => {
     const queryText = 'DELETE FROM users WHERE id=$1 returning *';
 
     try {
