@@ -1,6 +1,6 @@
 {
   "name": "rosterserver",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Server for Roster service",
   "main": "/dist/app.js",
   "private": true,
