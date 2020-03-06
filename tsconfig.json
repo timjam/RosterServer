@@ -66,6 +66,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/**/*.d.ts",
+    "./knex/**/*.ts",
   ],
   "exclude": [
     "./node_modules/",

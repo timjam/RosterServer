@@ -32,6 +32,13 @@ const authmw = {
           try {
             const secret = process.env.JWT_TOKEN as string;
             const decoded = jwt.verify(token, secret) as Token;
+            /**
+             * This next line might be redundant, because
+             * 1. We might not want to hit the db so that the performance is better
+             * 2. userId will be anyway in the token and the token is signed anyway
+             *    so if someone had tampered with the payload, the jwt verification
+             *    would fail anyway
+             */
             const { rows } = await User.getOne(decoded.userId) as QueryResult;
 
             if (!rows[0]) {

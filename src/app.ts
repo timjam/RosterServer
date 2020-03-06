@@ -1,7 +1,14 @@
 import express from 'express';
 import morgan from 'morgan';
+import Knex from 'knex';
 import usersRouter from './routes/users';
 import authmw from './middlewares/authmw';
+import knexfile from '../knex/knexfile';
+
+// Init Knex
+// const knex = Knex(knexfile.development);
+
+// knex.migrate.latest();
 
 const app = express();
 const { SERVER_PORT } = process.env;
