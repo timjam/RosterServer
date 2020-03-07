@@ -1,5 +1,5 @@
 import * as Knex from 'knex';
-import USER_TABLE from '../../../src/db/constants';
+import tables from '../../constants';
 
 const USER_LIST = [
   {
@@ -11,9 +11,9 @@ const USER_LIST = [
 
 export async function seed(knex: Knex): Promise<any> {
     // Deletes ALL existing entries
-    return knex(USER_TABLE).del()
+    return knex(tables.USER_TABLE).del()
         .then(() => {
             // Inserts seed entries
-            return knex(USER_TABLE).insert(USER_LIST);
+            return knex(tables.USER_TABLE).insert(USER_LIST);
         });
 };

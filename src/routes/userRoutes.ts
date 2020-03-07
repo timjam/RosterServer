@@ -1,8 +1,6 @@
 import express, { Request, Response } from 'express';
-// import User from '../db/controllers/users';
-import User from '../db/models/user';
+import User from '../models/user';
 import Crypto from '../services/cryptoService';
-import { QueryResult } from 'pg';
 import { RequestWithUser } from '../types/request';
 
 const userRouter = express.Router();

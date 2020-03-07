@@ -1,5 +1,5 @@
 import { Model } from 'objection';
-import tables from '../../../knex/constants';
+import tables from '../../knex/constants';
 
 class User extends Model {
 
