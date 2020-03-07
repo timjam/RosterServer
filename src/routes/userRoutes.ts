@@ -1,11 +1,13 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import createError from 'http-errors';
 import User from '../models/user';
 import Crypto from '../services/cryptoService';
 import { RequestWithUser } from '../types/request';
+import { HttpError } from '../services/HttpErrors';
 
 const userRouter = express.Router();
 
-userRouter.post('/signup', async (req: Request, res: Response) => {
+userRouter.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -14,19 +16,12 @@ userRouter.post('/signup', async (req: Request, res: Response) => {
   }
 
   const hash = Crypto.hashPassword(password);
+  const id = await User.query().insert({ username, hash }).catch(next);
 
-  try {
-    // const { rows } = await User.create(username, hashedPassword) as QueryResult;
-    const user = await User.query().insert({
-      username,
-      hash,
-    })
-    // res.status(200).end(JSON.stringify({ rows }));
-    res.send('OK');
-  } catch (error) {
-    const { name, code, detail } = error;
-    res.status(400).end(JSON.stringify({ name, code, detail }));
-  }
+  if (!id) throw new HttpError(400, 'User already exists');
+
+  res.send({ id });
+  // res.status(200).end(JSON.stringify({ id }));
 });
 
 userRouter.post('/signin', async (req: Request, res: Response) => {
