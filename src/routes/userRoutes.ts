@@ -7,9 +7,10 @@ import { BadRequestError } from '../services/HttpErrors';
 
 const userRouter = promiseRouter();
 
-userRouter.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+userRouter.post('/signup', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
+  // Validate these in some middleware?
   if (!username || !password) {
     res.status(400).end(JSON.stringify(
       { message: 'Bad request. Username and password are required' }));
@@ -23,10 +24,12 @@ userRouter.post('/signup', async (req: Request, res: Response, next: NextFunctio
      * into try/catch. However the point of using promise router was to get
      * rid of try catches here and instead let the promiserouter handle the catch
      */
-    const id = await User.query().insert({ username, hash });
-    res.send({ id });
-  } catch {
-    throw new BadRequestError('Username already exists');
+    const { id } = await User.query().insert({ username, hash });
+    res.json(id);
+  } catch (error) {
+    // Throw plain error so Objection errors can be easily used or throw custom httperror?
+    // throw new BadRequestError('Username already exists');
+    throw error;
   }
 });
 
@@ -38,19 +41,16 @@ userRouter.post('/signin', async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await User.query().where({ username });
-    if (!user) {
-      res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
-    }
+    const user = await User.query().where({ username }).first();
 
-    if (!Crypto.comparePassword(password, user[0].hash)) {
+    if (!Crypto.comparePassword(password, user.hash)) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
     } else {
-      const token = Crypto.generateToken(user[0].id);
+      const token = Crypto.generateToken(user.id);
       res.status(200).end(JSON.stringify({ jwt: token }));
     }
   } catch (error) {
-    res.status(400).end(JSON.stringify({ error }));
+    throw error;
   }
 });
 
