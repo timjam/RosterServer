@@ -3,6 +3,7 @@ import { HttpError } from './../services/HttpErrors';
 
 const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   if (error) {
+    console.log('Handler', Object.getPrototypeOf(error));
     if (error instanceof HttpError) {
       res.status(error.statusCode).send({
         status: error.statusCode,

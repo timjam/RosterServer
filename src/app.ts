@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import Knex from 'knex';
 import { Model } from 'objection';
+// import promiseRouter from 'express-promise-router';
 
 import authmw from './middlewares/authmw';
 import errorHandler from './middlewares/errorHandler';
@@ -17,14 +18,18 @@ knex.migrate.latest();
 // Bind the knex instance to Model base class
 Model.knex(knex);
 
-const app = express();
 const { SERVER_PORT } = process.env;
 
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(authmw.verifyToken);
+// tslint:disable-next-line: no-var-requires
+// const promiseRouter = require('express-promise-router')();
+const app = express()
+  .use(express.json())
+  .use(express.urlencoded({ extended: false }))
+  .use(morgan('dev'))
+  .use(authmw.verifyToken);
+  // .use(promiseRouter);
 
+// usersRouter(promiseRouter);
 app.use('/user', usersRouter);
 
 app.use(errorHandler);

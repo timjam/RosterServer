@@ -1,9 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
-import createError from 'http-errors';
 import User from '../models/user';
 import Crypto from '../services/cryptoService';
 import { RequestWithUser } from '../types/request';
-import { HttpError } from '../services/HttpErrors';
 
 const userRouter = express.Router();
 
@@ -16,12 +14,12 @@ userRouter.post('/signup', async (req: Request, res: Response, next: NextFunctio
   }
 
   const hash = Crypto.hashPassword(password);
-  const id = await User.query().insert({ username, hash }).catch(next);
-
-  if (!id) throw new HttpError(400, 'User already exists');
-
-  res.send({ id });
-  // res.status(200).end(JSON.stringify({ id }));
+  try {
+    const id = await User.query().insert({ username, hash });
+    res.send({ id });
+  } catch {
+    res.status(400).end('Bad request');
+  }
 });
 
 userRouter.post('/signin', async (req: Request, res: Response) => {
