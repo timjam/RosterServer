@@ -2,7 +2,8 @@ export abstract class HttpError extends Error {
   statusCode: number = 500;
   constructor(public message: string) {
     super();
-    Object.setPrototypeOf(this, HttpError.prototype);
+    // this.name = 'HttpError';
+    // Object.setPrototypeOf(this, HttpError.prototype);
   }
 }
 

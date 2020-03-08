@@ -2,8 +2,10 @@ import express, { Request, Response, NextFunction } from 'express';
 import User from '../models/user';
 import Crypto from '../services/cryptoService';
 import { RequestWithUser } from '../types/request';
+import promiseRouter from 'express-promise-router';
+import { BadRequestError } from '../services/HttpErrors';
 
-const userRouter = express.Router();
+const userRouter = promiseRouter();
 
 userRouter.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
@@ -13,12 +15,18 @@ userRouter.post('/signup', async (req: Request, res: Response, next: NextFunctio
       { message: 'Bad request. Username and password are required' }));
   }
 
-  const hash = Crypto.hashPassword(password);
   try {
+    const hash = Crypto.hashPassword(password);
+    /**
+     * Okay this is a problem. This insert throws an error from
+     * pg and the error is catched by the promiserouter if this is not wrapped
+     * into try/catch. However the point of using promise router was to get
+     * rid of try catches here and instead let the promiserouter handle the catch
+     */
     const id = await User.query().insert({ username, hash });
     res.send({ id });
   } catch {
-    res.status(400).end('Bad request');
+    throw new BadRequestError('Username already exists');
   }
 });
 
