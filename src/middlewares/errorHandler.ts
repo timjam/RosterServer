@@ -87,7 +87,7 @@ function errorHandler(err: any, req: Request, res: Response, next: NextFunction)
       data: {
         columns: err.columns,
         table: err.table,
-        constraint: err.constraint
+        constraint: err.constraint,
       }
     });
   } else if (err instanceof NotNullViolationError) {
@@ -128,6 +128,11 @@ function errorHandler(err: any, req: Request, res: Response, next: NextFunction)
       message: err.message,
       type: 'UnknownDatabaseError',
       data: {}
+    });
+  } else if (err instanceof HttpError) {
+    res.status(err.statusCode).send({
+      message: err.message,
+      type: err.type,
     });
   } else {
     res.status(500).send({
