@@ -8,6 +8,7 @@ import { Model } from 'objection';
 
 // Configs
 import sessionOptions from './config/sessionOptions';
+import corsOptions from './config/corsOptions';
 import knexfile from '../knex/knexfile';
 
 // Middlewares
@@ -18,11 +19,17 @@ import errorHandler from './middlewares/errorHandler';
 import usersRouter from './routes/userRoutesNew';
 
 // Constants
+/**
+ * NODE_ENV has to be trimmed because trailing commands from
+ * command line when using piped commands
+ */
+const NODE_ENV = process.env.NODE_ENV?.trim();
+
 const {
   SERVER_PORT,
-  NODE_ENV,
   SESSION_SECRET,
 } = process.env;
+
 
 const IS_DEV = NODE_ENV === 'development';
 
@@ -56,7 +63,7 @@ if (!IS_DEV) {
 }
 
 app
-  .use(cors())
+  .use(cors(corsOptions))
   .use(session(sessionOptions(store, IS_DEV, SESSION_SECRET)))
   .use(express.json())
   .use(express.urlencoded({ extended: false }))

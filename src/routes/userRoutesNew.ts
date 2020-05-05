@@ -3,6 +3,7 @@ import promiseRouter from 'express-promise-router';
 import User from './../models/user';
 import Crypto from './../services/cryptoService';
 import { BadRequestError } from '../services/HttpErrors';
+import knex from 'knex';
 
 /**
  * NOTE: All error handling is done at the errorHandler middleware!
