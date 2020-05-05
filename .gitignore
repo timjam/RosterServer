@@ -5,5 +5,4 @@ dist
 
 # Files
 *.db
-src/db/roster.db
 .env

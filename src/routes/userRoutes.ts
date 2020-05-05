@@ -1,27 +1,35 @@
-import express, { Request, Response } from 'express';
-import User from '../db/controllers/users';
+import express, { Request, Response, NextFunction } from 'express';
+import User from '../models/user';
 import Crypto from '../services/cryptoService';
-import { QueryResult } from 'pg';
 import { RequestWithUser } from '../types/request';
+import promiseRouter from 'express-promise-router';
+import { BadRequestError } from '../services/HttpErrors';
 
-const userRouter = express.Router();
+const userRouter = promiseRouter();
 
 userRouter.post('/signup', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
+  // Validate these in some middleware?
   if (!username || !password) {
     res.status(400).end(JSON.stringify(
       { message: 'Bad request. Username and password are required' }));
   }
 
-  const hashedPassword = Crypto.hashPassword(password);
-
   try {
-    const { rows } = await User.create(username, hashedPassword) as QueryResult;
-    res.status(200).end(JSON.stringify({ rows }));
+    const hash = Crypto.hashPassword(password);
+    /**
+     * Okay this is a problem. This insert throws an error from
+     * pg and the error is catched by the promiserouter if this is not wrapped
+     * into try/catch. However the point of using promise router was to get
+     * rid of try catches here and instead let the promiserouter handle the catch
+     */
+    const { id } = await User.query().insert({ username, hash });
+    res.json(id);
   } catch (error) {
-    const { name, code, detail } = error;
-    res.status(400).end(JSON.stringify({ name, code, detail }));
+    // Throw plain error so Objection errors can be easily used or throw custom httperror?
+    // throw new BadRequestError('Username already exists');
+    throw error;
   }
 });
 
@@ -33,19 +41,16 @@ userRouter.post('/signin', async (req: Request, res: Response) => {
   }
 
   try {
-    const { rows } = await User.getOneByName(username) as QueryResult;
-    if (!rows[0]) {
-      res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
-    }
+    const user = await User.query().where({ username }).first();
 
-    if (!Crypto.comparePassword(password, rows[0].password)) {
+    if (!Crypto.comparePassword(password, user.hash)) {
       res.status(401).end(JSON.stringify({ message: 'Invalid credentials' }));
     } else {
-      const token = Crypto.generateToken(rows[0].id);
+      const token = Crypto.generateToken(user.id);
       res.status(200).end(JSON.stringify({ jwt: token }));
     }
   } catch (error) {
-    res.status(400).end(JSON.stringify({ error }));
+    throw error;
   }
 });
 
