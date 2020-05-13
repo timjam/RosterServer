@@ -23,16 +23,13 @@ import usersRouter from './routes/userRoutesNew';
  * NODE_ENV has to be trimmed because trailing commands from
  * command line when using piped commands
  */
-const NODE_ENV = process.env.NODE_ENV?.trim();
 
 const {
   SERVER_PORT,
-  SESSION_SECRET,
+  NODE_ENV = 'development',
 } = process.env;
 
-
-const IS_DEV = NODE_ENV === 'development';
-
+const IN_PROD = NODE_ENV?.trim() === 'production';
 
 // Init Knex
 const knex = Knex(knexfile.development);
@@ -55,20 +52,20 @@ const store = new KnexSessionStore({
 // Init express
 const app = express();
 
-if (!IS_DEV) {
+if (IN_PROD) {
   // + is unary operator and converts true to 1 and false to 0
   // This should set trust_proxy to 1 on staging and production
   // On development it is not set at all
-  app.set('trust_proxy', + !IS_DEV);
+  app.set('trust_proxy', +IN_PROD);
 }
 
 app
   .use(cors(corsOptions))
-  .use(session(sessionOptions(store, IS_DEV, SESSION_SECRET)))
+  .use(session(sessionOptions(store, IN_PROD)))
   .use(express.json())
   .use(express.urlencoded({ extended: false }))
-  .use(morgan('dev'))
-  .use(authmw.verifyToken);
+  .use(morgan('dev'));
+  // .use(authmw.verifyToken);
 
 app.use('/user', usersRouter);
 

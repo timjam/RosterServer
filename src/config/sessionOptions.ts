@@ -2,21 +2,28 @@ import uuidv1 from 'uuid';
 import { createHash, randomBytes } from 'crypto';
 import { KnexSessionStore } from 'connect-session-knex';
 
-const sessionOptions = (store: KnexSessionStore, isDev: boolean, secret?: string) => {
-  const domain = isDev ? '127.0.0.1:4500' : 'NOT KNOWN YET';
+const sessionOptions = (sessStore: KnexSessionStore, inProd: boolean) => {
+
+  const {
+    SESS_NAME = 'sid',
+    SESS_SECRET = 'super_secret',
+    SESS_LIFETIME = 7*24*3600*1000,
+  } = process.env;
+
   return {
-    secret: secret || 'super-secret',
-    store,
-    resave: true,
+    name: SESS_NAME,
+    secret: SESS_SECRET,
+    store: sessStore,
+    resave: false,
     saveUninitialized: false,
     // Generate unique ids that does not collide
     genid: () => createHash('sha256').update(uuidv1()).update(randomBytes(256)).digest('hex'),
     cookie: {
-      // One week
-      maxAge: 1000*3600*24*7,
-      secure: !isDev,
-      httpOnly: !isDev,
-      domain
+      maxAge: SESS_LIFETIME as number,
+      secure: inProd,
+      sameSite: inProd ? true : 'none' as 'none',
+      httpOnly: inProd,
+      path: '/'
     }
   };
 };
