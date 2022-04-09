@@ -28,7 +28,7 @@
     "http-errors": "^1.7.3",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.11",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "morgan": "^1.9.1",
     "mssql": "^6.2.0",
     "mysql": "^2.18.1",
